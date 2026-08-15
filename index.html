@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0;height:100%;}
+  body{font-family:'Noto Sans TC',sans-serif;background:linear-gradient(135deg,#FFF3D6 0%,#FFE3EE 50%,#E3F1FF 100%);}
+  a{color:#4D96FF;} a:hover{color:#2E6FD6;}
+  @keyframes pulseGlow{0%,100%{box-shadow:0 0 0 4px #FFD93D,0 8px 22px rgba(0,0,0,.28);}50%{box-shadow:0 0 0 8px #FFE98A,0 10px 26px rgba(0,0,0,.32);}}
+  @keyframes shakeDie{0%,100%{transform:rotate(0) translateY(0);}25%{transform:rotate(-16deg) translateY(-4px);}50%{transform:rotate(12deg) translateY(2px);}75%{transform:rotate(-8deg) translateY(-2px);}}
+  @keyframes popIn{0%{transform:scale(.6);opacity:0;}60%{transform:scale(1.08);}100%{transform:scale(1);opacity:1;}}
+  @keyframes floatY{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+  @keyframes confettiSpin{0%{transform:rotate(0) scale(1);}50%{transform:rotate(180deg) scale(1.25);}100%{transform:rotate(360deg) scale(1);}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;box-sizing:border-box;padding:10px 14px 18px;">
+
+  <div style="width:100%;max-width:1180px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 4px;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="font-size:clamp(30px,3.4vw,46px);animation:floatY 3s ease-in-out infinite;">🎲</div>
+      <div>
+        <div style="font-family:'Baloo 2','Noto Sans TC',sans-serif;font-weight:800;font-size:clamp(20px,2.6vw,34px);color:#E23E57;line-height:1;letter-spacing:.5px;">抽籤大富翁</div>
+        <div style="font-family:'Noto Sans TC';font-weight:700;font-size:clamp(15px,1.7vw,22px);color:#4D96FF;margin-top:3px;">{{ className }}</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onClick="{{ download }}" style="border:none;cursor:pointer;font-family:'Noto Sans TC';font-weight:700;font-size:clamp(13px,1.4vw,17px);color:#fff;background:#3DBE6B;padding:10px 16px;border-radius:14px;box-shadow:0 4px 0 #2E9A54;" style-active="transform:translateY(3px);box-shadow:none;">⬇ 下載名單</button>
+      <button onClick="{{ openSettings }}" style="border:none;cursor:pointer;font-family:'Noto Sans TC';font-weight:700;font-size:clamp(13px,1.4vw,17px);color:#fff;background:#8A6FE8;padding:10px 16px;border-radius:14px;box-shadow:0 4px 0 #6A4FCC;" style-active="transform:translateY(3px);box-shadow:none;">⚙ 設定</button>
+    </div>
+  </div>
+
+  <div style="position:relative;width:min(94vw,calc(100vh - 130px));aspect-ratio:1;display:grid;grid-template-columns:repeat(11,1fr);grid-template-rows:repeat(11,1fr);gap:5px;margin-top:6px;">
+
+    <sc-for list="{{ cells }}" as="cell" hint-placeholder-count="40">
+      <div style="{{ cell.style }}">
+        <sc-if value="{{ cell.isStudent }}" hint-placeholder-val="{{ true }}">
+          <div style="width:100%;text-align:center;background:{{ cell.color }};color:#fff;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:clamp(13px,1.55vw,22px);line-height:1.35;border-radius:7px 7px 0 0;">{{ cell.seat }}</div>
+          <div style="font-family:'Noto Sans TC';font-weight:700;font-size:clamp(10px,1.15vw,17px);color:#2b2b2b;margin-top:2px;text-align:center;line-height:1.05;">{{ cell.dname }}</div>
+          <div style="font-family:'Baloo 2';font-weight:700;font-size:clamp(10px,1.1vw,16px);color:#E23E57;margin-top:1px;white-space:nowrap;">{{ cell.scoreText }}</div>
+        </sc-if>
+        <sc-if value="{{ cell.isSpecial }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size:clamp(20px,2.7vw,44px);line-height:1;">{{ cell.emoji }}</div>
+          <div style="font-family:'Baloo 2','Noto Sans TC',sans-serif;font-weight:800;font-size:clamp(11px,1.35vw,21px);color:#4a3b12;margin-top:3px;letter-spacing:1px;">{{ cell.label }}</div>
+        </sc-if>
+        <sc-if value="{{ cell.isActive }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;top:-9px;right:-7px;font-size:clamp(15px,1.8vw,26px);animation:floatY 1s ease-in-out infinite;">📍</div>
+        </sc-if>
+      </div>
+    </sc-for>
+
+    <div style="grid-column:2 / 11;grid-row:2 / 11;background:linear-gradient(160deg,#ffffff,#FFF6E9);border-radius:22px;border:5px solid #FFD93D;box-shadow:0 10px 30px rgba(0,0,0,.14);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(8px,1.6vh,20px);padding:clamp(10px,2vw,28px);text-align:center;overflow:hidden;">
+
+      <div style="font-family:'Baloo 2','Noto Sans TC',sans-serif;font-weight:800;font-size:clamp(18px,2.2vw,30px);color:#8A6FE8;transform:rotate(-2deg);">🍀 幸運轉盤 🍀</div>
+
+      <div style="display:flex;gap:clamp(8px,1.4vw,18px);align-items:center;">
+        <div style="{{ die1Style }}">{{ diceFace1 }}</div>
+        <div style="{{ die2Style }}">{{ diceFace2 }}</div>
+      </div>
+
+      <button onClick="{{ roll }}" style="{{ rollBtnStyle }}">{{ rollLabel }}</button>
+
+      <div style="font-family:'Noto Sans TC';font-weight:700;font-size:clamp(15px,1.9vw,26px);color:#E23E57;min-height:1.2em;">{{ statusText }}</div>
+
+      <sc-if value="{{ drawn }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:popIn .4s ease;display:flex;flex-direction:column;align-items:center;gap:clamp(6px,1.2vh,14px);background:#FFF0F4;border:3px dashed #FF8FB1;border-radius:18px;padding:clamp(8px,1.6vw,20px) clamp(14px,2.4vw,30px);">
+          <div style="display:flex;align-items:center;gap:clamp(10px,1.6vw,20px);">
+            <div style="width:clamp(46px,6vw,86px);height:clamp(46px,6vw,86px);border-radius:50%;background:#4D96FF;color:#fff;font-family:'Baloo 2';font-weight:800;font-size:clamp(22px,3vw,44px);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 0 #2E6FD6;">{{ drawn.seat }}</div>
+            <div style="font-family:'Noto Sans TC';font-weight:900;font-size:clamp(26px,3.6vw,54px);color:#2b2b2b;">{{ drawn.name }}</div>
+          </div>
+          <div style="font-family:'Baloo 2';font-weight:800;font-size:clamp(22px,3vw,44px);color:#E23E57;">❤️ {{ drawn.score }}</div>
+          <div style="display:flex;gap:clamp(8px,1.4vw,16px);">
+            <button onClick="{{ plusOne }}" style="border:none;cursor:pointer;font-family:'Baloo 2','Noto Sans TC';font-weight:800;font-size:clamp(16px,2vw,28px);color:#fff;background:#FF5D8F;padding:clamp(8px,1.2vw,14px) clamp(16px,2.4vw,30px);border-radius:16px;box-shadow:0 5px 0 #D63C6E;" style-active="transform:translateY(4px);box-shadow:none;">+1 ❤️</button>
+            <button onClick="{{ minusOne }}" style="border:none;cursor:pointer;font-family:'Baloo 2','Noto Sans TC';font-weight:800;font-size:clamp(16px,2vw,28px);color:#fff;background:#7A8AA0;padding:clamp(8px,1.2vw,14px) clamp(16px,2.4vw,30px);border-radius:16px;box-shadow:0 5px 0 #5A6a80;" style-active="transform:translateY(4px);box-shadow:none;">-1 💔</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ eventText }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:popIn .4s ease;display:flex;flex-direction:column;align-items:center;gap:8px;background:#FFF9E0;border:3px dashed #FFC542;border-radius:18px;padding:clamp(10px,1.8vw,24px) clamp(16px,2.6vw,34px);max-width:90%;">
+          <div style="font-size:clamp(30px,4vw,60px);animation:confettiSpin 1.4s ease-in-out infinite;">{{ eventEmoji }}</div>
+          <div style="font-family:'Noto Sans TC';font-weight:900;font-size:clamp(18px,2.3vw,32px);color:#B4740A;line-height:1.3;">{{ eventText }}</div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ idle }}" hint-placeholder-val="{{ true }}">
+        <div style="font-family:'Noto Sans TC';font-weight:500;font-size:clamp(13px,1.5vw,20px);color:#9a8f7a;max-width:80%;">按下按鈕擲骰子，棋子會沿著棋盤走格，停在誰的格子就抽中誰！</div>
+      </sc-if>
+    </div>
+  </div>
+
+  <sc-if value="{{ showSettings }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;background:rgba(40,25,60,.5);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;box-sizing:border-box;">
+      <div style="background:#fff;border-radius:22px;width:min(560px,94vw);max-height:90vh;overflow:auto;padding:26px 28px;box-shadow:0 20px 60px rgba(0,0,0,.35);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+          <div style="font-family:'Baloo 2','Noto Sans TC';font-weight:800;font-size:26px;color:#8A6FE8;">⚙ 設定</div>
+          <button onClick="{{ closeSettings }}" style="border:none;cursor:pointer;font-size:20px;background:#eee;width:38px;height:38px;border-radius:50%;color:#666;">✕</button>
+        </div>
+
+        <label style="display:block;font-family:'Noto Sans TC';font-weight:700;font-size:16px;color:#444;margin-bottom:6px;">班級名稱</label>
+        <input value="{{ draftClass }}" onInput="{{ onClass }}" style="width:100%;box-sizing:border-box;font-family:'Noto Sans TC';font-size:17px;padding:11px 14px;border:2px solid #ddd;border-radius:12px;margin-bottom:20px;" />
+
+        <div style="display:flex;align-items:center;justify-content:space-between;background:#F6F2FF;border-radius:14px;padding:12px 16px;margin-bottom:20px;">
+          <div>
+            <div style="font-family:'Noto Sans TC';font-weight:700;font-size:16px;color:#444;">姓名隱私遮罩（○）</div>
+            <div style="font-family:'Noto Sans TC';font-size:13px;color:#888;">開啟後隱藏名字中間的字</div>
+          </div>
+          <button onClick="{{ toggleMask }}" style="{{ maskBtnStyle }}">{{ maskLabel }}</button>
+        </div>
+
+        <label style="display:block;font-family:'Noto Sans TC';font-weight:700;font-size:16px;color:#444;margin-bottom:6px;">學生名單（每行一位，格式：座號 姓名）</label>
+        <textarea value="{{ draftList }}" onInput="{{ onList }}" rows="10" style="width:100%;box-sizing:border-box;font-family:'Noto Sans TC';font-size:15px;line-height:1.6;padding:12px 14px;border:2px solid #ddd;border-radius:12px;resize:vertical;margin-bottom:8px;"></textarea>
+        <div style="font-family:'Noto Sans TC';font-size:13px;color:#888;margin-bottom:20px;">不足 36 人時，空格會自動變成「機會 / 命運」事件格。</div>
+
+        <div style="display:flex;gap:12px;">
+          <button onClick="{{ applySettings }}" style="flex:1;border:none;cursor:pointer;font-family:'Noto Sans TC';font-weight:800;font-size:18px;color:#fff;background:#3DBE6B;padding:14px;border-radius:14px;box-shadow:0 4px 0 #2E9A54;" style-active="transform:translateY(3px);box-shadow:none;">套用並儲存</button>
+          <button onClick="{{ closeSettings }}" style="border:none;cursor:pointer;font-family:'Noto Sans TC';font-weight:700;font-size:18px;color:#666;background:#eee;padding:14px 22px;border-radius:14px;">取消</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    className: '102班',
+    students: [
+      [1,'王○晴'],[2,'王○萱'],[3,'任○珍'],[4,'呂○潼'],[5,'宋○昀'],
+      [6,'施○瑄'],[7,'洪○綺'],[8,'孫○涵'],[9,'徐○柔'],[10,'張○妮'],
+      [11,'許○慈'],[12,'陳○瑄'],[13,'陳○彤'],[14,'黄○雅'],[15,'傅○綺'],
+      [16,'曾○晴'],[17,'曾○彤'],[18,'温○芮'],[19,'黃○晴'],[20,'黃○琳'],
+      [21,'楊○潔'],[22,'詹○瑊'],[23,'潘○辰'],[24,'鄧○予'],[25,'鄭○沁'],
+      [26,'戴○鋡'],[27,'鍾○霓'],[28,'王○騰'],[29,'林○緯'],[30,'范○丞'],
+      [31,'莊○瀚'],[32,'陳○元'],[33,'黃○豪'],[34,'詹○嘉'],[35,'劉○佳']
+    ].map(function(s){ return { seat:s[0], name:s[1], score:0 }; }),
+    maskOn: true,
+    pos: 0,
+    dice: null,
+    rolling: false,
+    statusText: '',
+    drawn: null,
+    eventText: null,
+    eventEmoji: '',
+    showSettings: false,
+    draftClass: '',
+    draftList: ''
+  };
+
+  CORNERS = {
+    0:  { emoji:'🏁', label:'出發', kind:'go' },
+    10: { emoji:'❓', label:'機會', kind:'chance' },
+    20: { emoji:'🔮', label:'命運', kind:'fate' },
+    30: { emoji:'🎉', label:'派對', kind:'party' }
+  };
+  DICE_FACES = ['','⚀','⚁','⚂','⚃','⚄','⚅'];
+  CHANCE = [
+    { scope:'one', amt:2, tpl:'整潔小尖兵！{n} +2 ❤️' },
+    { scope:'one', amt:3, tpl:'上課超投入！{n} +3 ❤️' },
+    { scope:'one', amt:2, tpl:'熱心助人的小天使！{n} +2 ❤️' },
+    { scope:'all', amt:1, text:'大掃除大成功，全班每人 +1 ❤️！' }
+  ];
+  FATE = [
+    { scope:'all', amt:1, text:'全班秩序超棒，每人 +1 ❤️！' },
+    { scope:'one', amt:3, tpl:'突擊小考滿分！{n} +3 ❤️' },
+    { scope:'one', amt:2, tpl:'幸運之星降臨！{n} +2 ❤️' },
+    { scope:'all', amt:2, text:'午餐光碟行動達成，每人 +2 ❤️！' }
+  ];
+
+  // ---------- audio ----------
+  ac() {
+    if (!this._ac) {
+      try { this._ac = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){ this._ac = null; }
+    }
+    if (this._ac && this._ac.state === 'suspended') this._ac.resume();
+    return this._ac;
+  }
+  blip(freq, dur, type, vol, when) {
+    const ac = this.ac(); if (!ac) return;
+    const t = ac.currentTime + (when||0);
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = type || 'square'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol||0.14, t+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+(dur||0.12));
+    o.connect(g); g.connect(ac.destination);
+    o.start(t); o.stop(t+(dur||0.12)+0.02);
+  }
+  playRoll(){ for(let i=0;i<6;i++) this.blip(180+Math.random()*260, 0.06, 'square', 0.09, i*0.07); }
+  playTick(){ this.blip(660, 0.05, 'triangle', 0.12); }
+  playWin(){ [523,659,784,1047].forEach((f,i)=>this.blip(f,0.16,'triangle',0.16,i*0.09)); }
+  playEvent(){ [392,523,659,880,1047].forEach((f,i)=>this.blip(f,0.14,'sawtooth',0.12,i*0.08)); }
+
+  // ---------- board ----------
+  pathCoords() {
+    const c=[];
+    for (let col=1; col<=11; col++) c.push({r:1,c:col});
+    for (let r=2; r<=11; r++) c.push({r:r,c:11});
+    for (let col=10; col>=1; col--) c.push({r:11,c:col});
+    for (let r=10; r>=2; r--) c.push({r:r,c:1});
+    return c;
+  }
+  sideColor(r,c){
+    if (r===1) return '#FF6B6B';
+    if (c===11) return '#F7A62B';
+    if (r===11) return '#3DBE6B';
+    if (c===1) return '#4D96FF';
+    return '#C780FA';
+  }
+  specialBg(kind){
+    return { go:'#DFF6E5', chance:'#FFF3CE', fate:'#EFE3FF', party:'#FFE1EC' }[kind] || '#FFF3CE';
+  }
+  buildCells(forRender) {
+    const coords = this.pathCoords();
+    const st = this.state.students;
+    const cells = [];
+    let si = 0;
+    for (let i=0;i<40;i++){
+      const co = coords[i];
+      const color = this.sideColor(co.r, co.c);
+      const isActive = (i === this.state.pos);
+      if (this.CORNERS[i]) {
+        const cd = this.CORNERS[i];
+        cells.push(this._special(i, co, cd.emoji, cd.label, cd.kind, isActive, forRender));
+      } else {
+        const stu = st[si]; si++;
+        if (stu) {
+          const isDrawn = this.state.drawn && this.state.drawn.seat === stu.seat;
+          cells.push({
+            key:'s'+i, type:'student', seat:stu.seat, name:stu.name, score:stu.score, idx:i, kind:null,
+            isStudent:true, isSpecial:false, isActive:isActive,
+            color: color,
+            dname: forRender ? this.mask(stu.name) : stu.name,
+            scoreText: '❤️'+stu.score,
+            style: this.cellStyle(co, color, isActive, isDrawn, false, null)
+          });
+        } else {
+          const kind = (si % 2 === 0) ? 'chance' : 'fate';
+          const emoji = kind==='chance' ? '❓' : '🔮';
+          const label = kind==='chance' ? '機會' : '命運';
+          cells.push(this._special(i, co, emoji, label, kind, isActive, forRender));
+        }
+      }
+    }
+    return cells;
+  }
+  _special(i, co, emoji, label, kind, isActive, forRender){
+    return {
+      key:'x'+i, type:'special', kind:kind, idx:i,
+      isStudent:false, isSpecial:true, isActive:isActive,
+      emoji:emoji, label:label, color:'#fff',
+      seat:'', name:'', score:0, dname:'', scoreText:'',
+      style: this.cellStyle(co, this.sideColor(co.r,co.c), isActive, false, true, kind)
+    };
+  }
+  cellStyle(co, color, isActive, isDrawn, special, kind){
+    const s = {
+      gridRow: co.r, gridColumn: co.c,
+      background: special ? this.specialBg(kind) : '#fff',
+      border: '3px solid '+color,
+      borderRadius: '10px',
+      display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+      padding:'2px', position:'relative', boxSizing:'border-box', overflow:'visible',
+      boxShadow:'0 2px 0 rgba(0,0,0,.12)',
+      transition:'transform .18s ease, box-shadow .18s ease'
+    };
+    if (isDrawn){ s.border='4px solid #FF8F1F'; s.background='#FFF6E6'; }
+    if (isActive){ s.transform='scale(1.16)'; s.zIndex=8; s.animation='pulseGlow 0.7s ease-in-out infinite'; }
+    return s;
+  }
+  cellAt(i){ return this.buildCells(false)[i]; }
+
+  mask(name){
+    if (!this.state.maskOn) return name;
+    const ch = Array.from(name);
+    if (ch.length <= 1) return name;
+    if (ch.length === 2) return ch[0] + '○';
+    return ch[0] + '○'.repeat(ch.length-2) + ch[ch.length-1];
+  }
+
+  // ---------- roll ----------
+  roll = () => {
+    if (this.state.rolling) return;
+    this.ac();
+    const d1 = 1+Math.floor(Math.random()*6);
+    const d2 = 1+Math.floor(Math.random()*6);
+    const steps = d1+d2;
+    this.playRoll();
+    this.setState({ rolling:true, dice:[d1,d2], statusText:'擲出 '+steps+' 步！', drawn:null, eventText:null });
+    let remaining = steps;
+    const stepOnce = () => {
+      this.setState(s => ({ pos: (s.pos+1)%40 }));
+      this.playTick();
+      remaining--;
+      if (remaining > 0) this._t = setTimeout(stepOnce, 270);
+      else this._t = setTimeout(() => this.land(), 340);
+    };
+    this._t = setTimeout(stepOnce, 560);
+  };
+  land(){
+    const cell = this.cellAt(this.state.pos);
+    if (cell.type === 'student'){
+      this.playWin();
+      this.setState({ rolling:false, drawn:{ seat:cell.seat, name:this.mask(cell.name), score:cell.score }, statusText:'🎉 抽中 '+cell.seat+' 號！', eventText:null });
+    } else {
+      this.triggerEvent(cell.kind);
+    }
+  }
+  triggerEvent(kind){
+    let text='', emoji='🎁';
+    if (kind === 'go'){ this.applyAll(1); text='🏁 抵達出發點，全班每人 +1 ❤️！'; emoji='🏁'; }
+    else if (kind === 'party'){ this.applyAll(2); text='🎉 班級同樂會，全班每人 +2 ❤️！'; emoji='🎉'; }
+    else {
+      const pool = kind === 'chance' ? this.CHANCE : this.FATE;
+      const e = pool[Math.floor(Math.random()*pool.length)];
+      const prefix = kind === 'chance' ? '機會：' : '命運：';
+      emoji = kind === 'chance' ? '❓' : '🔮';
+      if (e.scope === 'all'){ this.applyAll(e.amt); text = prefix + e.text; }
+      else {
+        const st = this.state.students;
+        const pick = st[Math.floor(Math.random()*st.length)];
+        this.applyOne(pick.seat, e.amt);
+        const label = pick.seat + ' 號 ' + this.mask(pick.name);
+        text = prefix + e.tpl.replace('{n}', label);
+      }
+    }
+    this.playEvent();
+    this.setState({ rolling:false, eventText:text, eventEmoji:emoji, drawn:null, statusText:'✨ 觸發事件！' });
+  }
+  applyAll(amt){
+    this.setState(s => ({ students: s.students.map(x => ({ ...x, score: Math.max(0, x.score+amt) })) }));
+  }
+  applyOne(seat, amt){
+    this.setState(s => ({ students: s.students.map(x => x.seat===seat ? { ...x, score: Math.max(0, x.score+amt) } : x) }));
+  }
+  adjust(delta){
+    if (!this.state.drawn) return;
+    const seat = this.state.drawn.seat;
+    this.setState(s => {
+      const students = s.students.map(x => x.seat===seat ? { ...x, score: Math.max(0, x.score+delta) } : x);
+      const cur = students.find(x => x.seat===seat);
+      return { students, drawn: { ...s.drawn, score: cur.score } };
+    });
+    if (delta > 0) this.blip(880,0.12,'triangle',0.16); else this.blip(300,0.14,'sawtooth',0.12);
+  }
+  plusOne = () => this.adjust(1);
+  minusOne = () => this.adjust(-1);
+
+  // ---------- settings ----------
+  openSettings = () => {
+    this.setState({
+      showSettings:true,
+      draftClass:this.state.className,
+      draftList:this.state.students.map(s => s.seat+' '+s.name).join('\n')
+    });
+  };
+  closeSettings = () => this.setState({ showSettings:false });
+  onClass = (e) => this.setState({ draftClass: e.target.value });
+  onList = (e) => this.setState({ draftList: e.target.value });
+  toggleMask = () => this.setState(s => ({ maskOn: !s.maskOn }));
+  applySettings = () => {
+    const lines = this.state.draftList.split('\n').map(l => l.trim()).filter(Boolean);
+    const students = [];
+    lines.forEach((l, i) => {
+      const m = l.match(/^(\d+)[\s\.、]+(.+)$/);
+      let seat, name;
+      if (m){ seat = parseInt(m[1],10); name = m[2].trim(); }
+      else { seat = i+1; name = l; }
+      students.push({ seat, name, score:0 });
+    });
+    const capped = students.slice(0, 36);
+    this.setState({
+      className: this.state.draftClass.trim() || this.state.className,
+      students: capped,
+      showSettings:false,
+      pos:0, drawn:null, eventText:null, statusText:'', dice:null
+    });
+  };
+
+  download = () => {
+    const lines = ['班級：'+this.state.className, '座號\t姓名\t分數(❤️)'];
+    this.state.students.forEach(s => lines.push(s.seat+'\t'+s.name+'\t'+s.score));
+    const blob = new Blob([lines.join('\n')], { type:'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = this.state.className + '_分數清單.txt';
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+  };
+
+  componentWillUnmount(){ if (this._t) clearTimeout(this._t); }
+
+  renderVals(){
+    const d = this.state.dice;
+    const rolling = this.state.rolling;
+    const die1 = d ? this.DICE_FACES[d[0]] : '🎲';
+    const die2 = d ? this.DICE_FACES[d[1]] : '🎲';
+    const dieBase = "font-family:'Baloo 2';font-size:clamp(40px,5.2vw,80px);line-height:1;width:clamp(56px,7vw,104px);height:clamp(56px,7vw,104px);display:flex;align-items:center;justify-content:center;background:#fff;border:4px solid #E23E57;border-radius:18px;color:#E23E57;box-shadow:0 5px 0 #C42B44;";
+    const shake = rolling ? "animation:shakeDie 0.28s linear infinite;" : "";
+
+    const rollBtnStyle = "border:none;font-family:'Baloo 2','Noto Sans TC',sans-serif;font-weight:800;font-size:clamp(18px,2.3vw,32px);color:#fff;padding:clamp(10px,1.6vw,18px) clamp(24px,3.4vw,50px);border-radius:20px;letter-spacing:1px;"
+      + (rolling
+        ? "background:#bbb;cursor:not-allowed;box-shadow:0 6px 0 #999;"
+        : "background:#FF9F1C;cursor:pointer;box-shadow:0 6px 0 #D9820A;");
+
+    const maskBtnStyle = "border:none;cursor:pointer;font-family:'Noto Sans TC';font-weight:800;font-size:16px;color:#fff;padding:9px 20px;border-radius:20px;"
+      + (this.state.maskOn ? "background:#3DBE6B;box-shadow:0 3px 0 #2E9A54;" : "background:#bbb;box-shadow:0 3px 0 #999;");
+
+    return {
+      className: this.state.className,
+      cells: this.buildCells(true),
+      diceFace1: die1,
+      diceFace2: die2,
+      die1Style: dieBase + shake,
+      die2Style: dieBase + (rolling ? "animation:shakeDie 0.28s linear infinite reverse;" : ""),
+      roll: this.roll,
+      rollLabel: rolling ? '擲骰中…' : '🎲 擲骰子',
+      rollBtnStyle,
+      statusText: this.state.statusText,
+      drawn: this.state.drawn,
+      eventText: this.state.eventText,
+      eventEmoji: this.state.eventEmoji,
+      idle: !this.state.drawn && !this.state.eventText && !rolling,
+      plusOne: this.plusOne,
+      minusOne: this.minusOne,
+      openSettings: this.openSettings,
+      closeSettings: this.closeSettings,
+      showSettings: this.state.showSettings,
+      draftClass: this.state.draftClass,
+      draftList: this.state.draftList,
+      onClass: this.onClass,
+      onList: this.onList,
+      toggleMask: this.toggleMask,
+      maskLabel: this.state.maskOn ? '已開啟' : '已關閉',
+      maskBtnStyle,
+      applySettings: this.applySettings,
+      download: this.download
+    };
+  }
+}
+</script>
+</body>
+</html>
